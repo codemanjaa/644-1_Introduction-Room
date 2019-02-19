@@ -4,11 +4,15 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
 
-@Entity(tableName = "clients", primaryKeys = {"email"})
+@Entity(tableName = "clients")
 public class ClientEntity {
 
-    @NonNull
+    @PrimaryKey(autoGenerate = true)
+    private Long id;
+
+    @ColumnInfo(name = "email")
     private String email;
 
     @ColumnInfo(name = "first_name")
@@ -27,7 +31,14 @@ public class ClientEntity {
         this.lastName = lastName;
     }
 
-    @NonNull
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getEmail() {
         return email;
     }

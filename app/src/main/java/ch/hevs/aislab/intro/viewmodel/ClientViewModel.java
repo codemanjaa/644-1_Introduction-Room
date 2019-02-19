@@ -1,7 +1,6 @@
 package ch.hevs.aislab.intro.viewmodel;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -9,8 +8,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-import ch.hevs.aislab.intro.database.async.DeleteClient;
-import ch.hevs.aislab.intro.database.async.UpdateClient;
 import ch.hevs.aislab.intro.database.entity.ClientEntity;
 import ch.hevs.aislab.intro.database.repository.ClientRepository;
 import ch.hevs.aislab.intro.util.OnAsyncEventListener;
@@ -34,7 +31,7 @@ public class ClientViewModel extends AndroidViewModel {
         // set by default null, until we get data from the database.
         mObservableClient.setValue(null);
 
-        LiveData<ClientEntity> client = mRepository.getClient(clientEmail);
+        LiveData<ClientEntity> client = mRepository.getClient(clientEmail, getApplication().getApplicationContext());
 
         // observe the changes of the client entity from the database and forward them
         mObservableClient.addSource(client, mObservableClient::setValue);
@@ -55,7 +52,7 @@ public class ClientViewModel extends AndroidViewModel {
         public Factory(@NonNull Application application, String clientEmail) {
             mApplication = application;
             mClientEmail = clientEmail;
-            mRepository = ClientRepository.getInstance(application.getApplicationContext());
+            mRepository = ClientRepository.getInstance();
         }
 
         @Override
@@ -72,35 +69,15 @@ public class ClientViewModel extends AndroidViewModel {
         return mObservableClient;
     }
 
-    public void updateClient(ClientEntity client, OnAsyncEventListener callback) {
-        new UpdateClient(getApplication(), new OnAsyncEventListener() {
-            @Override
-            public void onSuccess() {
-                callback.onSuccess();
-                Log.d(TAG, "updateClient: success");
-            }
+    public void createClient(ClientEntity client, OnAsyncEventListener callback) {
+        mRepository.insert(client, callback, getApplication().getApplicationContext());
+    }
 
-            @Override
-            public void onFailure(Exception e) {
-                callback.onFailure(e);
-                Log.d(TAG, "updateClient: failure", e);
-            }
-        }).execute(client);
+    public void updateClient(ClientEntity client, OnAsyncEventListener callback) {
+        mRepository.update(client, callback, getApplication().getApplicationContext());
     }
 
     public void deleteClient(ClientEntity client, OnAsyncEventListener callback) {
-        new DeleteClient(getApplication(), new OnAsyncEventListener() {
-            @Override
-            public void onSuccess() {
-                callback.onSuccess();
-                Log.d(TAG, "deleteClient: success");
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                callback.onFailure(e);
-                Log.d(TAG, "deleteClient: failure", e);
-            }
-        }).execute(client);
+        mRepository.delete(client, callback, getApplication().getApplicationContext());
     }
 }

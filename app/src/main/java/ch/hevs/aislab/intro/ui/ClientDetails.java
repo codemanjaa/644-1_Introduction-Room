@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
 import ch.hevs.aislab.intro.R;
-import ch.hevs.aislab.intro.database.async.CreateClient;
 import ch.hevs.aislab.intro.database.entity.ClientEntity;
 import ch.hevs.aislab.intro.util.OnAsyncEventListener;
 import ch.hevs.aislab.intro.viewmodel.ClientViewModel;
@@ -43,21 +42,22 @@ public class ClientDetails extends AppCompatActivity {
         setContentView(R.layout.activity_client_details);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        setTitle(R.string.title_activity_details);
 
         String clientEmail = getIntent().getStringExtra("clientEmail");
 
         initiateView();
 
+        ClientViewModel.Factory factory = new ClientViewModel.Factory(getApplication(), clientEmail);
+        mViewModel = ViewModelProviders.of(this, factory).get(ClientViewModel.class);
+        mViewModel.getClient().observe(this, clientEntity -> {
+            if (clientEntity != null) {
+                mClient = clientEntity;
+                updateContent();
+            }
+        });
+
         if (clientEmail != null) {
-            ClientViewModel.Factory factory = new ClientViewModel.Factory(getApplication(), clientEmail);
-            mViewModel = ViewModelProviders.of(this, factory).get(ClientViewModel.class);
-            mViewModel.getClient().observe(this, clientEntity -> {
-                if (clientEntity != null) {
-                    mClient = clientEntity;
-                    updateContent();
-                }
-            });
+            setTitle(R.string.title_activity_details);
         } else {
             setTitle(R.string.title_activity_create);
             switchEditableMode();
@@ -173,7 +173,8 @@ public class ClientDetails extends AppCompatActivity {
         mClient.setEmail(email);
         mClient.setFirstName(firstName);
         mClient.setLastName(lastName);
-        new CreateClient(getApplication(), new OnAsyncEventListener() {
+
+        mViewModel.createClient(mClient, new OnAsyncEventListener() {
             @Override
             public void onSuccess() {
                 onBackPressed();
@@ -181,7 +182,7 @@ public class ClientDetails extends AppCompatActivity {
 
             @Override
             public void onFailure(Exception e) {}
-        }).execute(mClient);
+        });
     }
 
     private void saveChanges(String firstName, String lastName, String email) {
@@ -198,6 +199,7 @@ public class ClientDetails extends AppCompatActivity {
             @Override
             public void onSuccess() {
                 setResponse(true);
+                onBackPressed();
             }
 
             @Override
@@ -209,12 +211,11 @@ public class ClientDetails extends AppCompatActivity {
 
     private void setResponse(Boolean response) {
         if (response) {
-            updateContent();
             mToast = Toast.makeText(this, getString(R.string.client_edited), Toast.LENGTH_LONG);
             mToast.show();
         } else {
-            mEtEmail.setError(getString(R.string.error_used_email));
-            mEtEmail.requestFocus();
+            mToast = Toast.makeText(this, getString(R.string.action_error), Toast.LENGTH_LONG);
+            mToast.show();
         }
     }
 

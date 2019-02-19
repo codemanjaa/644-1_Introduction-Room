@@ -1,51 +1,90 @@
 package ch.hevs.aislab.intro.database.repository;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
 import ch.hevs.aislab.intro.database.AppDatabase;
+import ch.hevs.aislab.intro.database.async.CreateClient;
+import ch.hevs.aislab.intro.database.async.DeleteClient;
+import ch.hevs.aislab.intro.database.async.UpdateClient;
 import ch.hevs.aislab.intro.database.entity.ClientEntity;
+import ch.hevs.aislab.intro.util.OnAsyncEventListener;
 
 public class ClientRepository {
 
+    private static final String TAG = "ClientRepository";
+
     private static ClientRepository sInstance;
 
-    private final AppDatabase mDatabase;
+    private ClientRepository() {}
 
-    private ClientRepository(final Context context) {
-        mDatabase = AppDatabase.getInstance(context);
-    }
-
-    public static ClientRepository getInstance(final Context context) {
+    public static ClientRepository getInstance() {
         if (sInstance == null) {
             synchronized (ClientRepository.class) {
                 if (sInstance == null) {
-                    sInstance = new ClientRepository(context);
+                    sInstance = new ClientRepository();
                 }
             }
         }
         return sInstance;
     }
 
-    public LiveData<ClientEntity> getClient(final String email) {
-        return mDatabase.clientDao().getByEmail(email);
+    public LiveData<ClientEntity> getClient(final String email, Context context) {
+        return AppDatabase.getInstance(context).clientDao().getByEmail(email);
     }
 
-    public LiveData<List<ClientEntity>> getAllClients() {
-        return mDatabase.clientDao().getAll();
+    public LiveData<List<ClientEntity>> getAllClients(Context context) {
+        return AppDatabase.getInstance(context).clientDao().getAll();
     }
 
-    public void insert(final ClientEntity client) {
-        mDatabase.clientDao().insert(client);
+    public void insert(final ClientEntity client, OnAsyncEventListener callback, Context context) {
+        new CreateClient(context, new OnAsyncEventListener() {
+            @Override
+            public void onSuccess() {
+                callback.onSuccess();
+                Log.d(TAG, "createClient: success");
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+                Log.d(TAG, "createClient: failure", e);
+            }
+        }).execute(client);
     }
 
-    public void update(final ClientEntity client) {
-        mDatabase.clientDao().update(client);
+    public void update(final ClientEntity client, OnAsyncEventListener callback, Context context) {
+        new UpdateClient(context, new OnAsyncEventListener() {
+            @Override
+            public void onSuccess() {
+                callback.onSuccess();
+                Log.d(TAG, "updateClient: success");
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+                Log.d(TAG, "updateClient: failure", e);
+            }
+        }).execute(client);
     }
 
-    public void delete(final ClientEntity client) {
-        mDatabase.clientDao().delete(client);
+    public void delete(final ClientEntity client, OnAsyncEventListener callback, Context context) {
+        new DeleteClient(context, new OnAsyncEventListener() {
+            @Override
+            public void onSuccess() {
+                callback.onSuccess();
+                Log.d(TAG, "deleteClient: success");
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+                Log.d(TAG, "deleteClient: failure", e);
+            }
+        }).execute(client);
     }
 }

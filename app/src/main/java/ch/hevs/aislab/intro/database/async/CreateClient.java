@@ -1,22 +1,20 @@
 package ch.hevs.aislab.intro.database.async;
 
-import android.app.Application;
+import android.content.Context;
 import android.os.AsyncTask;
 
+import ch.hevs.aislab.intro.database.AppDatabase;
 import ch.hevs.aislab.intro.database.entity.ClientEntity;
-import ch.hevs.aislab.intro.database.repository.ClientRepository;
 import ch.hevs.aislab.intro.util.OnAsyncEventListener;
 
 public class CreateClient extends AsyncTask<ClientEntity, Void, Void> {
 
-    private static final String TAG = "CreateClient";
-
-    private Application mApplication;
+    private AppDatabase mDatabase;
     private OnAsyncEventListener mCallBack;
     private Exception mException;
 
-    public CreateClient(Application application, OnAsyncEventListener callback) {
-        mApplication = application;
+    public CreateClient(Context context, OnAsyncEventListener callback) {
+        mDatabase = AppDatabase.getInstance(context);
         mCallBack = callback;
     }
 
@@ -24,8 +22,7 @@ public class CreateClient extends AsyncTask<ClientEntity, Void, Void> {
     protected Void doInBackground(ClientEntity... params) {
         try {
             for (ClientEntity client : params)
-                ClientRepository.getInstance(mApplication.getApplicationContext())
-                        .insert(client);
+                mDatabase.clientDao().insert(client);
         } catch (Exception e) {
             mException = e;
         }

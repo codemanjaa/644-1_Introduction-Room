@@ -5,7 +5,6 @@ import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
@@ -19,12 +18,9 @@ import ch.hevs.aislab.intro.util.RecyclerViewItemClickListener;
 import ch.hevs.aislab.intro.viewmodel.ClientListViewModel;
 
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,8 +72,6 @@ public class MainActivity extends AppCompatActivity {
             public void onItemLongClick(View v, int position) {
                 Log.d(TAG, "longClicked position:" + position);
                 Log.d(TAG, "longClicked on: " + mClients.get(position).toString());
-
-                createDeleteDialog(position);
             }
         });
 
@@ -123,27 +117,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void createDeleteDialog(final int position) {
-        final ClientEntity client = mClients.get(position);
-        LayoutInflater inflater = LayoutInflater.from(this);
-        final View view = inflater.inflate(R.layout.row_delete_item, null);
-        final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-        alertDialog.setTitle(getString(R.string.title_activity_delete_account));
-        alertDialog.setCancelable(false);
-
-        final TextView deleteMessage = view.findViewById(R.id.tv_delete_item);
-        deleteMessage.setText(getString(R.string.delete_msg));
-
-        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.action_accept), (dialog, which) -> {
-            Toast toast = Toast.makeText(this, getString(R.string.account_deleted), Toast.LENGTH_LONG);
-            mViewModel.deleteClient(client);
-            toast.show();
-        });
-
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.action_cancel), (dialog, which) -> alertDialog.dismiss());
-        alertDialog.setView(view);
-        alertDialog.show();
     }
 }

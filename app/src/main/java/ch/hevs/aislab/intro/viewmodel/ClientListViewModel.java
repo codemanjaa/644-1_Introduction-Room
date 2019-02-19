@@ -11,7 +11,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-import ch.hevs.aislab.intro.database.async.DeleteClient;
 import ch.hevs.aislab.intro.database.entity.ClientEntity;
 import ch.hevs.aislab.intro.database.repository.ClientRepository;
 import ch.hevs.aislab.intro.util.OnAsyncEventListener;
@@ -34,7 +33,7 @@ public class ClientListViewModel extends AndroidViewModel {
         // set by default null, until we get data from the database.
         mObservableClients.setValue(null);
 
-        LiveData<List<ClientEntity>> clients = mRepository.getAllClients();
+        LiveData<List<ClientEntity>> clients = mRepository.getAllClients(getApplication().getApplicationContext());
 
         // observe the changes of the entities from the database and forward them
         mObservableClients.addSource(clients, mObservableClients::setValue);
@@ -52,7 +51,7 @@ public class ClientListViewModel extends AndroidViewModel {
 
         public Factory(@NonNull Application application) {
             mApplication = application;
-            mClientRepository = ClientRepository.getInstance(application.getApplicationContext());
+            mClientRepository = ClientRepository.getInstance();
         }
 
         @Override
@@ -70,16 +69,12 @@ public class ClientListViewModel extends AndroidViewModel {
     }
 
     public void deleteClient(ClientEntity client) {
-        new DeleteClient(getApplication(), new OnAsyncEventListener() {
+        mRepository.delete(client, new OnAsyncEventListener() {
             @Override
-            public void onSuccess() {
-                Log.d(TAG, "deleteClient: success");
-            }
+            public void onSuccess() { }
 
             @Override
-            public void onFailure(Exception e) {
-                Log.d(TAG, "deleteClient: failure", e);
-            }
-        }).execute(client);
+            public void onFailure(Exception e) { }
+        }, getApplication().getApplicationContext());
     }
 }
