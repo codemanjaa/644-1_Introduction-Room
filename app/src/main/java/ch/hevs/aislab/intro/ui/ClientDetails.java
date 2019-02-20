@@ -17,23 +17,21 @@ import android.widget.Toast;
 
 public class ClientDetails extends AppCompatActivity {
 
-    private static final String TAG = "ClientDetails";
-
     private static final int CREATE_CLIENT = 0;
     private static final int EDIT_CLIENT = 1;
     private static final int DELETE_CLIENT = 2;
 
-    private Toast mToast;
+    private Toast statusToast;
 
-    private boolean mEditable;
+    private boolean isEditable;
 
-    private EditText mEtFirstName;
-    private EditText mEtLastName;
-    private EditText mEtEmail;
+    private EditText etFirstName;
+    private EditText etLastName;
+    private EditText etEmail;
 
-    private ClientViewModel mViewModel;
+    private ClientViewModel viewModel;
 
-    private ClientEntity mClient;
+    private ClientEntity client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,10 +46,10 @@ public class ClientDetails extends AppCompatActivity {
         initiateView();
 
         ClientViewModel.Factory factory = new ClientViewModel.Factory(getApplication(), clientEmail);
-        mViewModel = ViewModelProviders.of(this, factory).get(ClientViewModel.class);
-        mViewModel.getClient().observe(this, clientEntity -> {
+        viewModel = ViewModelProviders.of(this, factory).get(ClientViewModel.class);
+        viewModel.getClient().observe(this, clientEntity -> {
             if (clientEntity != null) {
-                mClient = clientEntity;
+                client = clientEntity;
                 updateContent();
             }
         });
@@ -67,7 +65,7 @@ public class ClientDetails extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        if (mClient != null)  {
+        if (client != null)  {
             menu.add(0, EDIT_CLIENT, Menu.NONE, getString(R.string.action_edit))
                     .setIcon(R.drawable.ic_mode_edit_white_24dp)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -85,7 +83,7 @@ public class ClientDetails extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == EDIT_CLIENT) {
-            if (mEditable) {
+            if (isEditable) {
                 item.setIcon(R.drawable.ic_mode_edit_white_24dp);
                 switchEditableMode();
             } else {
@@ -99,7 +97,7 @@ public class ClientDetails extends AppCompatActivity {
             alertDialog.setCancelable(false);
             alertDialog.setMessage(getString(R.string.delete_msg));
             alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.action_delete), (dialog, which) -> {
-                mViewModel.deleteClient(mClient, new OnAsyncEventListener() {
+                viewModel.deleteClient(client, new OnAsyncEventListener() {
                     @Override
                     public void onSuccess() {
                         onBackPressed();
@@ -114,67 +112,67 @@ public class ClientDetails extends AppCompatActivity {
         }
         if (item.getItemId() == CREATE_CLIENT) {
             createClient(
-                    mEtFirstName.getText().toString(),
-                    mEtLastName.getText().toString(),
-                    mEtEmail.getText().toString()
+                    etFirstName.getText().toString(),
+                    etLastName.getText().toString(),
+                    etEmail.getText().toString()
             );
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void initiateView() {
-        mEditable = false;
-        mEtFirstName = findViewById(R.id.firstName);
-        mEtLastName = findViewById(R.id.lastName);
-        mEtEmail = findViewById(R.id.email);
+        isEditable = false;
+        etFirstName = findViewById(R.id.firstName);
+        etLastName = findViewById(R.id.lastName);
+        etEmail = findViewById(R.id.email);
 
-        mEtFirstName.setFocusable(false);
-        mEtFirstName.setEnabled(false);
-        mEtLastName.setFocusable(false);
-        mEtLastName.setEnabled(false);
-        mEtEmail.setFocusable(false);
-        mEtEmail.setEnabled(false);
+        etFirstName.setFocusable(false);
+        etFirstName.setEnabled(false);
+        etLastName.setFocusable(false);
+        etLastName.setEnabled(false);
+        etEmail.setFocusable(false);
+        etEmail.setEnabled(false);
     }
 
     private void switchEditableMode() {
-        if (!mEditable) {
-            mEtFirstName.setFocusable(true);
-            mEtFirstName.setEnabled(true);
-            mEtLastName.setFocusable(true);
-            mEtLastName.setEnabled(true);
-            mEtEmail.setFocusable(true);
-            mEtEmail.setEnabled(true);
-            mEtEmail.setFocusableInTouchMode(true);
-            mEtFirstName.requestFocus();
+        if (!isEditable) {
+            etFirstName.setFocusable(true);
+            etFirstName.setEnabled(true);
+            etLastName.setFocusable(true);
+            etLastName.setEnabled(true);
+            etEmail.setFocusable(true);
+            etEmail.setEnabled(true);
+            etEmail.setFocusableInTouchMode(true);
+            etFirstName.requestFocus();
         } else {
             saveChanges(
-                    mEtFirstName.getText().toString(),
-                    mEtLastName.getText().toString(),
-                    mEtEmail.getText().toString()
+                    etFirstName.getText().toString(),
+                    etLastName.getText().toString(),
+                    etEmail.getText().toString()
             );
-            mEtFirstName.setFocusable(false);
-            mEtFirstName.setEnabled(false);
-            mEtLastName.setFocusable(false);
-            mEtLastName.setEnabled(false);
-            mEtEmail.setFocusable(false);
-            mEtEmail.setEnabled(false);
+            etFirstName.setFocusable(false);
+            etFirstName.setEnabled(false);
+            etLastName.setFocusable(false);
+            etLastName.setEnabled(false);
+            etEmail.setFocusable(false);
+            etEmail.setEnabled(false);
         }
-        mEditable = !mEditable;
+        isEditable = !isEditable;
     }
 
     private void createClient(String firstName, String lastName, String email) {
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            mEtEmail.setError(getString(R.string.error_invalid_email));
-            mEtEmail.requestFocus();
+            etEmail.setError(getString(R.string.error_invalid_email));
+            etEmail.requestFocus();
             return;
         }
 
-        mClient = new ClientEntity();
-        mClient.setEmail(email);
-        mClient.setFirstName(firstName);
-        mClient.setLastName(lastName);
+        client = new ClientEntity();
+        client.setEmail(email);
+        client.setFirstName(firstName);
+        client.setLastName(lastName);
 
-        mViewModel.createClient(mClient, new OnAsyncEventListener() {
+        viewModel.createClient(client, new OnAsyncEventListener() {
             @Override
             public void onSuccess() {
                 onBackPressed();
@@ -187,15 +185,15 @@ public class ClientDetails extends AppCompatActivity {
 
     private void saveChanges(String firstName, String lastName, String email) {
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            mEtEmail.setError(getString(R.string.error_invalid_email));
-            mEtEmail.requestFocus();
+            etEmail.setError(getString(R.string.error_invalid_email));
+            etEmail.requestFocus();
             return;
         }
-        mClient.setEmail(email);
-        mClient.setFirstName(firstName);
-        mClient.setLastName(lastName);
+        client.setEmail(email);
+        client.setFirstName(firstName);
+        client.setLastName(lastName);
 
-        mViewModel.updateClient(mClient, new OnAsyncEventListener() {
+        viewModel.updateClient(client, new OnAsyncEventListener() {
             @Override
             public void onSuccess() {
                 setResponse(true);
@@ -211,19 +209,19 @@ public class ClientDetails extends AppCompatActivity {
 
     private void setResponse(Boolean response) {
         if (response) {
-            mToast = Toast.makeText(this, getString(R.string.client_edited), Toast.LENGTH_LONG);
-            mToast.show();
+            statusToast = Toast.makeText(this, getString(R.string.client_edited), Toast.LENGTH_LONG);
+            statusToast.show();
         } else {
-            mToast = Toast.makeText(this, getString(R.string.action_error), Toast.LENGTH_LONG);
-            mToast.show();
+            statusToast = Toast.makeText(this, getString(R.string.action_error), Toast.LENGTH_LONG);
+            statusToast.show();
         }
     }
 
     private void updateContent() {
-        if (mClient != null) {
-            mEtFirstName.setText(mClient.getFirstName());
-            mEtLastName.setText(mClient.getLastName());
-            mEtEmail.setText(mClient.getEmail());
+        if (client != null) {
+            etFirstName.setText(client.getFirstName());
+            etLastName.setText(client.getLastName());
+            etEmail.setText(client.getEmail());
         }
     }
 }

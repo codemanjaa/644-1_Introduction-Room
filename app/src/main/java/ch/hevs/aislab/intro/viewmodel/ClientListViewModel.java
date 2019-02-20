@@ -1,7 +1,6 @@
 package ch.hevs.aislab.intro.viewmodel;
 
 import android.app.Application;
-import android.util.Log;
 
 import java.util.List;
 
@@ -17,26 +16,24 @@ import ch.hevs.aislab.intro.util.OnAsyncEventListener;
 
 public class ClientListViewModel extends AndroidViewModel {
 
-    private static final String TAG = "ClientListViewModel";
-
-    private ClientRepository mRepository;
+    private ClientRepository repository;
 
     // MediatorLiveData can observe other LiveData objects and react on their emissions.
-    private final MediatorLiveData<List<ClientEntity>> mObservableClients;
+    private final MediatorLiveData<List<ClientEntity>> observableClients;
 
     public ClientListViewModel(@NonNull Application application, ClientRepository clientRepository) {
         super(application);
 
-        mRepository = clientRepository;
+        repository = clientRepository;
 
-        mObservableClients = new MediatorLiveData<>();
+        observableClients = new MediatorLiveData<>();
         // set by default null, until we get data from the database.
-        mObservableClients.setValue(null);
+        observableClients.setValue(null);
 
-        LiveData<List<ClientEntity>> clients = mRepository.getAllClients(getApplication().getApplicationContext());
+        LiveData<List<ClientEntity>> clients = repository.getAllClients(getApplication().getApplicationContext());
 
         // observe the changes of the entities from the database and forward them
-        mObservableClients.addSource(clients, mObservableClients::setValue);
+        observableClients.addSource(clients, observableClients::setValue);
     }
 
     /**
@@ -45,19 +42,19 @@ public class ClientListViewModel extends AndroidViewModel {
     public static class Factory extends ViewModelProvider.NewInstanceFactory {
 
         @NonNull
-        private final Application mApplication;
+        private final Application application;
 
-        private final ClientRepository mClientRepository;
+        private final ClientRepository clientRepository;
 
         public Factory(@NonNull Application application) {
-            mApplication = application;
-            mClientRepository = ClientRepository.getInstance();
+            this.application = application;
+            clientRepository = ClientRepository.getInstance();
         }
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
             //noinspection unchecked
-            return (T) new ClientListViewModel(mApplication, mClientRepository);
+            return (T) new ClientListViewModel(application, clientRepository);
         }
     }
 
@@ -65,16 +62,6 @@ public class ClientListViewModel extends AndroidViewModel {
      * Expose the LiveData ClientEntities query so the UI can observe it.
      */
     public LiveData<List<ClientEntity>> getClients() {
-        return mObservableClients;
-    }
-
-    public void deleteClient(ClientEntity client) {
-        mRepository.delete(client, new OnAsyncEventListener() {
-            @Override
-            public void onSuccess() { }
-
-            @Override
-            public void onFailure(Exception e) { }
-        }, getApplication().getApplicationContext());
+        return observableClients;
     }
 }

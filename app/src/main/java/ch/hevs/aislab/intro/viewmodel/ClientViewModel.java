@@ -1,6 +1,7 @@
 package ch.hevs.aislab.intro.viewmodel;
 
 import android.app.Application;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -14,9 +15,9 @@ import ch.hevs.aislab.intro.util.OnAsyncEventListener;
 
 public class ClientViewModel extends AndroidViewModel {
 
-    private static final String TAG = "AccountViewModel";
+    private ClientRepository repository;
 
-    private ClientRepository mRepository;
+    private Context applicationContext;
 
     // MediatorLiveData can observe other LiveData objects and react on their emissions.
     private final MediatorLiveData<ClientEntity> mObservableClient;
@@ -25,13 +26,15 @@ public class ClientViewModel extends AndroidViewModel {
                            final String clientEmail, ClientRepository clientRepository) {
         super(application);
 
-        mRepository = clientRepository;
+        repository = clientRepository;
+
+        applicationContext = getApplication().getApplicationContext();
 
         mObservableClient = new MediatorLiveData<>();
         // set by default null, until we get data from the database.
         mObservableClient.setValue(null);
 
-        LiveData<ClientEntity> client = mRepository.getClient(clientEmail, getApplication().getApplicationContext());
+        LiveData<ClientEntity> client = repository.getClient(clientEmail, getApplication().getApplicationContext());
 
         // observe the changes of the client entity from the database and forward them
         mObservableClient.addSource(client, mObservableClient::setValue);
@@ -43,22 +46,22 @@ public class ClientViewModel extends AndroidViewModel {
     public static class Factory extends ViewModelProvider.NewInstanceFactory {
 
         @NonNull
-        private final Application mApplication;
+        private final Application application;
 
-        private final String mClientEmail;
+        private final String clientEmail;
 
-        private final ClientRepository mRepository;
+        private final ClientRepository repository;
 
         public Factory(@NonNull Application application, String clientEmail) {
-            mApplication = application;
-            mClientEmail = clientEmail;
-            mRepository = ClientRepository.getInstance();
+            this.application = application;
+            this.clientEmail = clientEmail;
+            repository = ClientRepository.getInstance();
         }
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
             //noinspection unchecked
-            return (T) new ClientViewModel(mApplication, mClientEmail, mRepository);
+            return (T) new ClientViewModel(application, clientEmail, repository);
         }
     }
 
@@ -70,14 +73,14 @@ public class ClientViewModel extends AndroidViewModel {
     }
 
     public void createClient(ClientEntity client, OnAsyncEventListener callback) {
-        mRepository.insert(client, callback, getApplication().getApplicationContext());
+        repository.insert(client, callback, applicationContext);
     }
 
     public void updateClient(ClientEntity client, OnAsyncEventListener callback) {
-        mRepository.update(client, callback, getApplication().getApplicationContext());
+        repository.update(client, callback, applicationContext);
     }
 
     public void deleteClient(ClientEntity client, OnAsyncEventListener callback) {
-        mRepository.delete(client, callback, getApplication().getApplicationContext());
+        repository.delete(client, callback, applicationContext);
     }
 }

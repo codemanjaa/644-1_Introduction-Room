@@ -20,24 +20,24 @@ public abstract class AppDatabase extends RoomDatabase {
 
     private static final String TAG = "AppDatabase";
 
-    private static AppDatabase sInstance;
+    private static AppDatabase instance;
 
-    private static final String DATABASE_NAME = "bank-database";
+    private static final String DATABASE_NAME = "intro-database";
 
     public abstract ClientDao clientDao();
 
-    private final MutableLiveData<Boolean> mIsDatabaseCreated = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isDatabaseCreated = new MutableLiveData<>();
 
     public static AppDatabase getInstance(final Context context) {
-        if (sInstance == null) {
+        if (instance == null) {
             synchronized (AppDatabase.class) {
-                if (sInstance == null) {
-                    sInstance = buildDatabase(context.getApplicationContext());
-                    sInstance.updateDatabaseCreated(context.getApplicationContext());
+                if (instance == null) {
+                    instance = buildDatabase(context.getApplicationContext());
+                    instance.updateDatabaseCreated(context.getApplicationContext());
                 }
             }
         }
-        return sInstance;
+        return instance;
     }
 
     /**
@@ -73,10 +73,10 @@ public abstract class AppDatabase extends RoomDatabase {
     }
 
     private void setDatabaseCreated(){
-        mIsDatabaseCreated.postValue(true);
+        isDatabaseCreated.postValue(true);
     }
 
     public LiveData<Boolean> getDatabaseCreated() {
-        return mIsDatabaseCreated;
+        return isDatabaseCreated;
     }
 }

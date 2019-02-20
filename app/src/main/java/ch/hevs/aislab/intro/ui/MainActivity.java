@@ -29,9 +29,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
-    private List<ClientEntity> mClients;
-    private RecyclerAdapter mAdapter;
-    private ClientListViewModel mViewModel;
+    private List<ClientEntity> clients;
+    private RecyclerAdapter recyclerAdapter;
+    private ClientListViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,26 +52,26 @@ public class MainActivity extends AppCompatActivity {
                 LinearLayoutManager.VERTICAL);
         recyclerView.addItemDecoration(dividerItemDecoration);
 
-        mClients = new ArrayList<>();
-        mAdapter = new RecyclerAdapter(new RecyclerViewItemClickListener() {
+        clients = new ArrayList<>();
+        recyclerAdapter = new RecyclerAdapter(new RecyclerViewItemClickListener() {
             @Override
             public void onItemClick(View v, int position) {
                 Log.d(TAG, "clicked position:" + position);
-                Log.d(TAG, "clicked on: " + mClients.get(position).toString());
+                Log.d(TAG, "clicked on: " + clients.get(position).toString());
 
                 Intent intent = new Intent(MainActivity.this, ClientDetails.class);
                 intent.setFlags(
                         Intent.FLAG_ACTIVITY_NO_ANIMATION |
                                 Intent.FLAG_ACTIVITY_NO_HISTORY
                 );
-                intent.putExtra("clientEmail", mClients.get(position).getEmail());
+                intent.putExtra("clientEmail", clients.get(position).getEmail());
                 startActivity(intent);
             }
 
             @Override
             public void onItemLongClick(View v, int position) {
                 Log.d(TAG, "longClicked position:" + position);
-                Log.d(TAG, "longClicked on: " + mClients.get(position).toString());
+                Log.d(TAG, "longClicked on: " + clients.get(position).toString());
             }
         });
 
@@ -87,15 +87,15 @@ public class MainActivity extends AppCompatActivity {
         );
 
         ClientListViewModel.Factory factory = new ClientListViewModel.Factory(getApplication());
-        mViewModel = ViewModelProviders.of(this, factory).get(ClientListViewModel.class);
-        mViewModel.getClients().observe(this, clientEntities -> {
+        viewModel = ViewModelProviders.of(this, factory).get(ClientListViewModel.class);
+        viewModel.getClients().observe(this, clientEntities -> {
             if (clientEntities != null) {
-                mClients = clientEntities;
-                mAdapter.setData(mClients);
+                clients = clientEntities;
+                recyclerAdapter.setData(clients);
             }
         });
 
-        recyclerView.setAdapter(mAdapter);
+        recyclerView.setAdapter(recyclerAdapter);
     }
 
     @Override

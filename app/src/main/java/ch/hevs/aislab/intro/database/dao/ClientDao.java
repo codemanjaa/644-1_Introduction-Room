@@ -15,8 +15,8 @@ import ch.hevs.aislab.intro.database.entity.ClientEntity;
 @Dao
 public interface ClientDao {
 
-    @Query("SELECT * FROM clients WHERE email = :id")
-    LiveData<ClientEntity> getByEmail(String id);
+    @Query("SELECT * FROM clients WHERE email = :email")
+    LiveData<ClientEntity> getByEmail(String email);
 
     @Query("SELECT * FROM clients")
     LiveData<List<ClientEntity>> getAll();

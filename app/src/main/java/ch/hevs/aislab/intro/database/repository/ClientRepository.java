@@ -17,19 +17,19 @@ public class ClientRepository {
 
     private static final String TAG = "ClientRepository";
 
-    private static ClientRepository sInstance;
+    private static ClientRepository instance;
 
     private ClientRepository() {}
 
     public static ClientRepository getInstance() {
-        if (sInstance == null) {
+        if (instance == null) {
             synchronized (ClientRepository.class) {
-                if (sInstance == null) {
-                    sInstance = new ClientRepository();
+                if (instance == null) {
+                    instance = new ClientRepository();
                 }
             }
         }
-        return sInstance;
+        return instance;
     }
 
     public LiveData<ClientEntity> getClient(final String email, Context context) {

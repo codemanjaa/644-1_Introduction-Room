@@ -32,15 +32,15 @@ public class DatabaseInitializer {
 
     private static class PopulateDbAsync extends AsyncTask<Void, Void, Void> {
 
-        private final AppDatabase mDb;
+        private final AppDatabase database;
 
         PopulateDbAsync(AppDatabase db) {
-            mDb = db;
+            database = db;
         }
 
         @Override
         protected Void doInBackground(final Void... params) {
-            populateWithTestData(mDb);
+            populateWithTestData(database);
             return null;
         }
 
