@@ -10,12 +10,15 @@ import ch.hevs.aislab.intro.util.OnAsyncEventListener;
 import ch.hevs.aislab.intro.viewmodel.ClientViewModel;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
 public class ClientDetails extends AppCompatActivity {
+
+    private static final String TAG = "ClientDetails";
 
     private static final int CREATE_CLIENT = 0;
     private static final int EDIT_CLIENT = 1;
@@ -100,11 +103,13 @@ public class ClientDetails extends AppCompatActivity {
                 viewModel.deleteClient(client, new OnAsyncEventListener() {
                     @Override
                     public void onSuccess() {
+                        Log.d(TAG, "deleteClient: success");
                         onBackPressed();
                     }
-
                     @Override
-                    public void onFailure(Exception e) {}
+                    public void onFailure(Exception e) {
+                        Log.d(TAG, "deleteClient: failure", e);
+                    }
                 });
             });
             alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.action_cancel), (dialog, which) -> alertDialog.dismiss());
@@ -175,11 +180,14 @@ public class ClientDetails extends AppCompatActivity {
         viewModel.createClient(client, new OnAsyncEventListener() {
             @Override
             public void onSuccess() {
+                Log.d(TAG, "createClient: success");
                 onBackPressed();
             }
 
             @Override
-            public void onFailure(Exception e) {}
+            public void onFailure(Exception e) {
+                Log.d(TAG, "createClient: failure", e);
+            }
         });
     }
 
@@ -196,12 +204,14 @@ public class ClientDetails extends AppCompatActivity {
         viewModel.updateClient(client, new OnAsyncEventListener() {
             @Override
             public void onSuccess() {
+                Log.d(TAG, "updateClient: success");
                 setResponse(true);
                 onBackPressed();
             }
 
             @Override
             public void onFailure(Exception e) {
+                Log.d(TAG, "updateClient: failure", e);
                 setResponse(false);
             }
         });

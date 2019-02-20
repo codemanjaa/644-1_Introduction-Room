@@ -15,8 +15,6 @@ import ch.hevs.aislab.intro.util.OnAsyncEventListener;
 
 public class ClientRepository {
 
-    private static final String TAG = "ClientRepository";
-
     private static ClientRepository instance;
 
     private ClientRepository() {}
@@ -41,50 +39,14 @@ public class ClientRepository {
     }
 
     public void insert(final ClientEntity client, OnAsyncEventListener callback, Context context) {
-        new CreateClient(context, new OnAsyncEventListener() {
-            @Override
-            public void onSuccess() {
-                callback.onSuccess();
-                Log.d(TAG, "createClient: success");
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                callback.onFailure(e);
-                Log.d(TAG, "createClient: failure", e);
-            }
-        }).execute(client);
+        new CreateClient(context, callback).execute(client);
     }
 
     public void update(final ClientEntity client, OnAsyncEventListener callback, Context context) {
-        new UpdateClient(context, new OnAsyncEventListener() {
-            @Override
-            public void onSuccess() {
-                callback.onSuccess();
-                Log.d(TAG, "updateClient: success");
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                callback.onFailure(e);
-                Log.d(TAG, "updateClient: failure", e);
-            }
-        }).execute(client);
+        new UpdateClient(context, callback).execute(client);
     }
 
     public void delete(final ClientEntity client, OnAsyncEventListener callback, Context context) {
-        new DeleteClient(context, new OnAsyncEventListener() {
-            @Override
-            public void onSuccess() {
-                callback.onSuccess();
-                Log.d(TAG, "deleteClient: success");
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                callback.onFailure(e);
-                Log.d(TAG, "deleteClient: failure", e);
-            }
-        }).execute(client);
+        new DeleteClient(context, callback).execute(client);
     }
 }
