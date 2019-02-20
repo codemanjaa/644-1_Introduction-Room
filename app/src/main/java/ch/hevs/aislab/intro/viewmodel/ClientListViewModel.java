@@ -1,6 +1,7 @@
 package ch.hevs.aislab.intro.viewmodel;
 
 import android.app.Application;
+import android.content.Context;
 
 import java.util.List;
 
@@ -12,11 +13,12 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import ch.hevs.aislab.intro.database.entity.ClientEntity;
 import ch.hevs.aislab.intro.database.repository.ClientRepository;
-import ch.hevs.aislab.intro.util.OnAsyncEventListener;
 
 public class ClientListViewModel extends AndroidViewModel {
 
     private ClientRepository repository;
+
+    private Context applicationContext;
 
     // MediatorLiveData can observe other LiveData objects and react on their emissions.
     private final MediatorLiveData<List<ClientEntity>> observableClients;
@@ -26,11 +28,13 @@ public class ClientListViewModel extends AndroidViewModel {
 
         repository = clientRepository;
 
+        applicationContext = getApplication().getApplicationContext();
+
         observableClients = new MediatorLiveData<>();
         // set by default null, until we get data from the database.
         observableClients.setValue(null);
 
-        LiveData<List<ClientEntity>> clients = repository.getAllClients(getApplication().getApplicationContext());
+        LiveData<List<ClientEntity>> clients = repository.getAllClients(applicationContext);
 
         // observe the changes of the entities from the database and forward them
         observableClients.addSource(clients, observableClients::setValue);
