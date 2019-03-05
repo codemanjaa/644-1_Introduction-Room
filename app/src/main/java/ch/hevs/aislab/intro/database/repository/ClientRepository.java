@@ -1,7 +1,6 @@
 package ch.hevs.aislab.intro.database.repository;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.util.List;
 
