@@ -28,7 +28,7 @@ public class ClientViewModel extends AndroidViewModel {
 
         repository = clientRepository;
 
-        applicationContext = getApplication().getApplicationContext();
+        applicationContext = application.getApplicationContext();
 
         observableClient = new MediatorLiveData<>();
         // set by default null, until we get data from the database.
